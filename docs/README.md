@@ -54,3 +54,45 @@ Compile the SvelteKit application and deploy the worker:
 npm run build
 npx wrangler deploy
 ```
+
+---
+
+## 4. Remote Control API & Debugging
+
+The application has built-in remote control features for triggering database updates, logs, and game regeneration.
+
+### A. Accessing Future Replays (Look-ahead Debugging)
+To view future dailies that are normally locked:
+1. Open your browser to `http://localhost:8787` (or your deployed URL).
+2. Open the developer console (F12) and execute:
+   ```javascript
+   document.cookie = "RC=secret; path=/";
+   ```
+   *(Replace `secret` with your active `REMOTE_CONTROL_KEY` value.)*
+3. You can now navigate to future dates directly, e.g., `/replay/2026-06-29`.
+
+### B. Remote Control API Endpoints
+All administrative APIs are `POST` endpoints located under `/remote-control/*`. They require a JSON body with the `key` field matching your `REMOTE_CONTROL_KEY`.
+
+#### Trigger App Sync
+```bash
+curl -X POST http://localhost:8787/remote-control/refetch-apps \
+  -H "Content-Type: application/json" \
+  -d '{"key": "secret"}'
+```
+
+#### Regenerate Daily Challenges
+Wipe and select new random games for a specific day:
+```bash
+curl -X POST http://localhost:8787/remote-control/regenerate-daily \
+  -H "Content-Type: application/json" \
+  -d '{"key": "secret", "date": "2026-06-28"}'
+```
+
+#### View System Event Logs
+```bash
+curl -X POST http://localhost:8787/remote-control/event-logs \
+  -H "Content-Type: application/json" \
+  -d '{"key": "secret"}'
+```
+
