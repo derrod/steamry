@@ -36,10 +36,13 @@ export default {
           await generateDailies(true);
         } else if (
           event.cron === '0 * * * *' ||
+          event.cron === '*/30 * * * *' ||
+          event.cron === '00 */30 * * * *' ||
           event.cron === '00 00 * * * *' ||
           event.cron === '00 * * * *' ||
           event.cron === '00 00 * * *' ||
-          event.cron === '0 * * *'
+          event.cron === '0 * * *' ||
+          event.cron === '*/30 * * *'
         ) {
           console.log('Running fillGameCache...');
           await fillGameCache();

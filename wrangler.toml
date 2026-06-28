@@ -9,7 +9,7 @@ directory = ".svelte-kit/cloudflare"
 binding = "ASSETS"
 
 [triggers]
-crons = [ "0 1 * * 1", "0 6 * * *", "0 * * * *" ]
+crons = [ "0 1 * * 1", "0 6 * * *", "*/30 * * * *" ]
 
 [vars]
 ORIGIN="https://steamry.rodney.io"

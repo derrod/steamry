@@ -16,9 +16,9 @@ export default async function fillGameCache(): Promise<void> {
     }
 
     // Since we are limited to 50 subrequests per invocation on Cloudflare Workers,
-    // and each fetchGameInfo takes 2 subrequests, we want to fetch at most 18
-    // successfully parsed games in one run to stay safely under the limit.
-    const amountNeeded = Math.min(18, 100 - currentCount);
+    // and each fetchGameInfo takes 3 subrequests (Steam Store, Reviews, and SteamSpy APIs),
+    // we want to fetch at most 14 successfully parsed games in one run to stay safely under the limit.
+    const amountNeeded = Math.min(14, 100 - currentCount);
     console.log(
       `Game cache has ${currentCount} rows. Fetching up to ${amountNeeded} games to fill cache...`,
     );
@@ -85,9 +85,9 @@ export default async function fillGameCache(): Promise<void> {
       if (gamesToInsert.length >= amountNeeded) {
         break;
       }
-      // If we are getting too close to the 50 subrequest limit (e.g. 48), stop processing.
-      // fetchGameInfo takes 2 subrequests, and inserting takes 1.
-      if (subrequestCount + 3 >= 50) {
+      // If we are getting too close to the 50 subrequest limit (e.g. 45), stop processing.
+      // fetchGameInfo takes 3 subrequests (Store details, reviews, and tags), and inserting takes 1.
+      if (subrequestCount + 4 >= 50) {
         console.warn(
           `Approaching Cloudflare subrequest limit (${subrequestCount}). Stopping batch.`,
         );
@@ -95,7 +95,7 @@ export default async function fillGameCache(): Promise<void> {
       }
 
       console.log(`Fetching game info for appid: ${steamApp.appid} (${steamApp.name})`);
-      subrequestCount += 2; // fetchGameInfo calls 2 APIs
+      subrequestCount += 3; // fetchGameInfo calls 3 APIs
       const game = await fetchGameInfo(steamApp.appid.toString());
       if (!game) {
         continue;
