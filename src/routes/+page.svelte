@@ -76,15 +76,23 @@
       </summary>
       <div class="border-t border-mute-foreground/20 bg-card-background-2/20 px-4 py-3">
         <div>
+          <h3 class="mb-2 text-sm font-bold text-primary-foreground">June 29, 2026</h3>
+          <ul class="list-inside list-disc space-y-1.5 pl-1 text-sm text-foreground/90">
+            <li>
+              Further improvements to make running on Cloudflare Workers possible without running
+              into rate-limits.
+            </li>
+            <li>Public launch, more or less</li>
+          </ul>
           <h3 class="mb-2 text-sm font-bold text-primary-foreground">June 28, 2026</h3>
           <ul class="list-inside list-disc space-y-1.5 pl-1 text-sm text-foreground/90">
             <li>
               Moved app to Cloudflare Workers + Turso to simplify hosting and hopefully survive on
-              the free tier :P
+              the free tier for a while :P
             </li>
             <li>
               Filtered out games based on user tags, but only consider the top 5 ones as they are
-              quite unreliable (e.g. Blender is tagged "Hentai", but it's quite low down.)
+              quite unreliable (e.g. Blender is tagged "Sexual Content", but it's quite low down.)
             </li>
             <li>Removed analytics</li>
             <li>Added this changelog, lol</li>
