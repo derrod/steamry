@@ -68,8 +68,7 @@
     </p>
     <p>
       Made by <Link href="https://bsky.app/profile/teatov.xyz">Teatov</Link>, updated and now hosted
-      by Made by <Link href="https://bsky.app/profile/rodney.io">Rodney</Link>. Source code is
-      available on
+      by <Link href="https://bsky.app/profile/rodney.io">Rodney</Link>. Source code is available on
       <Link href="https://github.com/derrod/steamry">GitHub</Link>. Thanks.
     </p>
   </Card>
