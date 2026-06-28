@@ -96,3 +96,18 @@ curl -X POST http://localhost:8787/remote-control/event-logs \
   -d '{"key": "secret"}'
 ```
 
+---
+
+## 5. Backfilling Previous Dates
+
+If you need to batch-generate daily challenges for a range of past dates, you can use the CLI backfill script. It connects directly to your active database (configured in `.dev.vars`) and generates daily challenge entries day-by-day.
+
+```bash
+npm run db:backfill <start-date YYYY-MM-DD> <end-date YYYY-MM-DD>
+```
+
+Example:
+```bash
+npm run db:backfill 2026-06-01 2026-06-25
+```
+
