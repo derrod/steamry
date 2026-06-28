@@ -115,10 +115,10 @@ export default async function fetchGameInfo(appid: string): Promise<schema.NewGa
     tags &&
     tags.some((tag) => {
       const lower = tag.toLowerCase();
-      return lower === 'sexual content' || lower === 'hentai';
+      return lower === 'hentai';
     })
   ) {
-    console.error(`App ${appid} has Sexual Content or Hentai tag`);
+    console.error(`App ${appid} has Hentai tag`);
     return null;
   }
 

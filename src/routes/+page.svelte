@@ -47,9 +47,7 @@
     </p>
     <ul class="list-inside list-disc">
       <li>Games with less than {MIN_REVIEWS} reviews</li>
-      <li>
-        Games marked as having "Frequent Nudity or Sexual Content" or tagged with "Sexual Content"
-      </li>
+      <li>Games marked as having "Frequent Nudity or Sexual Content" or tagged with "Hentai"</li>
       <li>And also games that had issues with fetching info about them</li>
     </ul>
     <p class="mt-2">
