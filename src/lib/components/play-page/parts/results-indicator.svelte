@@ -7,7 +7,7 @@
 </script>
 
 <ul class="flex w-full justify-stretch gap-2">
-  {#each rounds as _, i}
+  {#each rounds as round, i (round.round)}
     <div
       aria-label={i < guesses.length ? (guesses[i] ? 'Correct' : 'Incorrect') : 'No guess'}
       class="flex h-6 w-full items-center justify-center rounded-xs text-white {i < guesses.length

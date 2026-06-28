@@ -1,10 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import {
-  sqliteTable,
-  integer,
-  text,
-  primaryKey,
-} from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, primaryKey } from 'drizzle-orm/sqlite-core';
 import type { ContentDescriptor } from '$lib';
 
 export const steamApps = sqliteTable('steam_apps', {
@@ -36,9 +31,15 @@ export const games = sqliteTable(
     tags: text('tags', { mode: 'json' }).$type<string[]>(),
     categories: text('categories', { mode: 'json' }).$type<string[]>().notNull(),
     genres: text('genres', { mode: 'json' }).$type<string[]>().notNull(),
-    screenshots: text('screenshots', { mode: 'json' }).$type<{ thumbnail: string; src: string }[]>().notNull(),
-    trailers: text('trailers', { mode: 'json' }).$type<{ thumbnail: string; webm?: string; mp4?: string }[]>().notNull(),
-    contentDescriptors: text('content_descriptors', { mode: 'json' }).$type<ContentDescriptor[]>().notNull(),
+    screenshots: text('screenshots', { mode: 'json' })
+      .$type<{ thumbnail: string; src: string }[]>()
+      .notNull(),
+    trailers: text('trailers', { mode: 'json' })
+      .$type<{ thumbnail: string; webm?: string; mp4?: string }[]>()
+      .notNull(),
+    contentDescriptors: text('content_descriptors', { mode: 'json' })
+      .$type<ContentDescriptor[]>()
+      .notNull(),
     requiredAge: integer('required_age').notNull().default(0),
     markedAsNsfw: integer('marked_as_nsfw', { mode: 'boolean' }).notNull().default(false),
     isHandPicked: integer('is_hand_picked', { mode: 'boolean' }).notNull().default(false),
@@ -76,7 +77,9 @@ export const results = sqliteTable(
     dailyId: integer('daily_id')
       .notNull()
       .references(() => dailies.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
     ipHashed: text('ip_hashed').notNull(),
     correctGuesses: integer('correct_guesses').notNull(),
     guesses: text('guesses', { mode: 'json' }).$type<boolean[]>().notNull(),
@@ -89,7 +92,9 @@ export type NewResult = typeof results.$inferInsert;
 
 export const eventLogs = sqliteTable('event_logs', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
   type: text('type').notNull(),
   data: text('data', { mode: 'json' }).notNull(),
 });

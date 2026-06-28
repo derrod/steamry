@@ -16,14 +16,10 @@ async function hmacSha256(message: string, secret: string): Promise<string> {
     keyData,
     { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ['sign']
+    ['sign'],
   );
 
-  const signature = await crypto.subtle.sign(
-    'HMAC',
-    cryptoKey,
-    messageData
-  );
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
 
   const hashArray = new Uint8Array(signature);
   let binary = '';
@@ -67,7 +63,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
   const rounds = Object.keys(
     daily.games.reduce(
-      (acc: Record<number, true>, curr: any) => {
+      (acc: Record<number, true>, curr) => {
         acc[curr.round] = true;
         return acc;
       },

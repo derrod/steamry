@@ -1,6 +1,6 @@
-import { createRequire } from 'node:module';
 import { createClient } from '@libsql/client';
 import { drizzle, type LibSQLDatabase } from 'drizzle-orm/libsql';
+import { createRequire } from 'node:module';
 import * as schema from './schema';
 
 export type Database = LibSQLDatabase<typeof schema>;
@@ -45,11 +45,11 @@ export function initLocalDb() {
   }
 }
 
-export const db: Database = new Proxy({} as any, {
+export const db: Database = new Proxy({} as unknown as Database, {
   get(target, prop, receiver) {
     if (!_db) {
-      throw new Error("Database not initialized! Call initDb(url, token) or initLocalDb() first.");
+      throw new Error('Database not initialized! Call initDb(url, token) or initLocalDb() first.');
     }
     return Reflect.get(_db, prop, receiver);
-  }
+  },
 });

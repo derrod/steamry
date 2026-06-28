@@ -107,7 +107,7 @@
 <div class="flex">
   <Button class="px-0 py-0" onclick={() => changeCurrentMedia(-1)}><IconLeft /></Button>
   <div class="flex grow overflow-x-auto">
-    {#each mediaList as mediaListItem, i}
+    {#each mediaList as mediaListItem, i (mediaListItem.screenshot ? mediaListItem.screenshot.src : mediaListItem.trailer?.thumbnail)}
       <button
         class="relative shrink-0 border-2 border-foreground/0 focus-visible:border-ring/100 focus-visible:ring-0 focus-visible:ring-offset-0 {mediaListItem ===
         currentMedia
@@ -148,7 +148,7 @@
     {#if game.contentDescriptors.length > 0}
       <p>This game is marked as having:</p>
       <ul class="list-inside list-disc text-left">
-        {#each game.contentDescriptors as descriptor}
+        {#each game.contentDescriptors as descriptor (descriptor)}
           <li>{getContentDescriptorText(descriptor)}</li>
         {/each}
       </ul>

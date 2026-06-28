@@ -15,7 +15,7 @@ fs.writeFileSync(
 [assets]
 directory = "cloudflare"
 binding = "ASSETS"
-`
+`,
 );
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -25,9 +25,9 @@ const config = {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter({
-      config: '.svelte-kit/wrangler.build.toml'
+      config: '.svelte-kit/wrangler.build.toml',
     }),
-    paths: { relative: false }
+    paths: { relative: false },
   },
 };
 

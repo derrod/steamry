@@ -37,7 +37,7 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   try {
-    const results = (await query).map((result: any) => ({
+    const results = (await query).map((result) => ({
       ...result,
       guesses: guessesToString(result.guesses),
     }));

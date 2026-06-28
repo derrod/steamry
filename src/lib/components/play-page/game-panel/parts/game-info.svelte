@@ -12,7 +12,7 @@
     {/if}
     {#if items}
       <p>
-        {#each items as item, i}
+        {#each items as item, i (item)}
           <span class="text-primary-foreground">{item}</span>{#if i < items.length - 1}
             ,&nbsp;
           {/if}
@@ -34,6 +34,7 @@
       Hand-picked
     </p>
   {/if}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   <p class="text-card-foreground md:text-sm">{@html game.description}</p>
   {@render infoItem(
     'Total reviews',
@@ -50,7 +51,7 @@
     <div>
       <p class="text-mute-foreground">Popular user-defined tags for this product:</p>
       <p class="flex flex-wrap gap-0.75 text-[0.7rem]">
-        {#each game.tags as tag, i}
+        {#each game.tags as tag (tag)}
           <span class="rounded-xs bg-primary-background px-1 py-0.25 text-primary-foreground"
             >{tag}</span
           >
@@ -60,7 +61,7 @@
   {/if}
   {@render infoItem('Genre', undefined, game.genres)}
   <ul class="flex flex-wrap gap-1 text-[0.7rem]">
-    {#each game.categories as category}
+    {#each game.categories as category (category)}
       <li class="bg-primary-background/50 px-1.5 py-0.5 text-primary-foreground">
         {category}
       </li>

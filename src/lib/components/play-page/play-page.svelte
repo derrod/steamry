@@ -3,7 +3,6 @@
   import {
     getMaxScore,
     getScore,
-    guessesToString,
     makeSaveDataKey,
     SAVE_DATA,
     type ResultBody,
@@ -118,7 +117,7 @@
           <Button href="/replay" size="sm" class="shrink-0">Back to previous dailies</Button>
         {/if}
       </div>
-      {#each round.games as game}
+      {#each round.games as game (game.appid)}
         <GamePanel {game} isCorrect={isCorrect(game)} {reveal} onguess={guess} />
       {/each}
     {/if}

@@ -108,7 +108,7 @@
     </div>
 
     <ul class="mt-6 space-y-1 text-card-foreground">
-      {#each rounds as round, i}
+      {#each rounds as round, i (round.round)}
         {@const roundMaxScore = getMaxScore(round.games)}
         <li
           aria-label={guesses[i] ? 'Correct' : 'Incorrect'}
@@ -121,7 +121,7 @@
           {:else}
             <IconX />
           {/if}
-          {#each round.games as game}
+          {#each round.games as game (game.appid)}
             {@const score = getScore(game)}
             <div class="flex w-0 grow justify-between">
               <Link
@@ -159,7 +159,7 @@
       <div class="text-center">Average guess distribution:</div>
       <div class="mx-auto flex h-26 max-w-sm items-stretch justify-stretch gap-2">
         {#if results}
-          {#each results.rounds as correctRatio, index}
+          {#each results.rounds as correctRatio, index (index)}
             {@const correctPercentage = Math.round(correctRatio * 100)}
             <div
               class="flex w-full cursor-help flex-col gap-2 text-center text-[0.6rem]"

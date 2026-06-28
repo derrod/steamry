@@ -66,16 +66,16 @@
       <Button href="/">Back to home page</Button>
     </div>
     <div class="space-y-4">
-      {#each Object.keys(months) as monthKey}
+      {#each Object.keys(months) as monthKey (monthKey)}
         {@const month = months[monthKey]}
         <div>
           <h2 class="text-xl md:text-2xl">{formatMonth(monthKey)}</h2>
           <div class="grid grid-cols-7 gap-1">
-            {#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as weekday}
+            {#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as weekday (weekday)}
               <div class="text-center text-sm text-mute-foreground">{weekday}</div>
             {/each}
 
-            {#each month as daily}
+            {#each month as daily, i (daily ? daily.id : `placeholder-${i}`)}
               <div>
                 {#if daily}
                   {@const saveDataKey = makeSaveDataKey(daily.date)}

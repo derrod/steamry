@@ -11,10 +11,5 @@
     "strict": true,
     "moduleResolution": "bundler"
   },
-  "exclude": [
-    "node_modules",
-    ".svelte-kit/output",
-    ".svelte-kit/cloudflare",
-    "src/worker.js"
-  ]
+  "exclude": ["node_modules", ".svelte-kit/output", ".svelte-kit/cloudflare", "src/worker.js"]
 }

@@ -1,6 +1,6 @@
 import { getScore, getTimezoneDate } from '../src/lib';
-import { initLocalDb } from '../src/lib/server/db';
 import makeNewDaily from '../src/lib/server/daily/make-new-daily';
+import { initLocalDb } from '../src/lib/server/db';
 
 initLocalDb();
 

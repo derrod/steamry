@@ -1,5 +1,5 @@
-import { defineConfig } from 'drizzle-kit';
 import dotenv from 'dotenv';
+import { defineConfig } from 'drizzle-kit';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -22,7 +22,7 @@ const dialect = isTurso ? 'turso' : 'sqlite';
 export default defineConfig({
   schema: './src/lib/server/db/schema.ts',
   out: './drizzle',
-  dialect: dialect as any,
+  dialect: dialect as 'turso' | 'sqlite',
   dbCredentials: {
     url: url,
     authToken: authToken,
