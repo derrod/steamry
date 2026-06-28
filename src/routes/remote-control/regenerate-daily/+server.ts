@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request }) => {
     throw error(400, "Field 'date' is missing");
   }
 
-  makeNewDaily(new Date(date));
+  await makeNewDaily(new Date(date), true);
 
-  return json({ message: `Started generating daily for ${new Date(date).toISOString()}...` });
+  return json({ message: `Successfully generated daily for ${new Date(date).toISOString()}...` });
 };

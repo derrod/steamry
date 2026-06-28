@@ -31,7 +31,9 @@ export const POST: RequestHandler = async ({ request }) => {
     throw error(404, `Daily for ${new Date(date).toISOString()} not found`);
   }
 
-  refetchDailyInfo(daily.games);
+  await refetchDailyInfo(daily.games);
 
-  return json({ message: `Started refetching game info for ${new Date(date).toISOString()}...` });
+  return json({
+    message: `Successfully refetched game info for ${new Date(date).toISOString()}...`,
+  });
 };

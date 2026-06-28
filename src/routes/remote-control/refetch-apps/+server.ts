@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ request }) => {
     throw error(401);
   }
 
-  fetchApps();
+  await fetchApps();
 
-  return json({ message: `Started fetching steam apps...` });
+  return json({ message: `Successfully fetched steam apps...` });
 };

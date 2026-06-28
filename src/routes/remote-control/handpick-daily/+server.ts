@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ request }) => {
     throw error(400, "Field 'date' or 'rounds' are missing");
   }
 
-  handpickDaily(floorDate(new Date(date)), rounds);
+  await handpickDaily(floorDate(new Date(date)), rounds);
 
-  return json({ message: `Started for ${new Date(date).toISOString()}...` });
+  return json({ message: `Successfully handpicked daily for ${new Date(date).toISOString()}...` });
 };
