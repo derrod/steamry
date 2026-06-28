@@ -6,18 +6,16 @@ export default async function saveDaily(date: Date, rounds: schema.NewGameInfoOn
   let daily: schema.Daily | undefined = undefined;
   const games: schema.NewGame[] = [];
 
-  await db.transaction(async (tx) => {
-    await tx.delete(schema.dailies).where(eq(schema.dailies.date, date));
-    daily = (await tx.insert(schema.dailies).values({ date }).returning())[0];
+  await db.delete(schema.dailies).where(eq(schema.dailies.date, date));
+  daily = (await db.insert(schema.dailies).values({ date }).returning())[0];
 
-    for (let i = 0; i < rounds.length; i++) {
-      for (let j = 0; j < rounds[i].length; j++) {
-        games.push({ ...rounds[i][j], dailyId: daily.id, round: i });
-      }
+  for (let i = 0; i < rounds.length; i++) {
+    for (let j = 0; j < rounds[i].length; j++) {
+      games.push({ ...rounds[i][j], dailyId: daily!.id, round: i });
     }
+  }
 
-    await tx.insert(schema.games).values(games);
-  });
+  await db.insert(schema.games).values(games);
 
   return daily;
 }

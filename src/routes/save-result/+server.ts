@@ -1,11 +1,37 @@
 import { error } from '@sveltejs/kit';
-import crypto from 'crypto';
 import { eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { getTodayDate, getTomorrowDate, type ResultBody } from '$lib';
 import { db } from '$lib/server/db';
 import * as schema from '$lib/server/db/schema';
 import type { RequestHandler } from './$types';
+
+async function hmacSha256(message: string, secret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(message);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    cryptoKey,
+    messageData
+  );
+
+  const hashArray = new Uint8Array(signature);
+  let binary = '';
+  for (let i = 0; i < hashArray.byteLength; i++) {
+    binary += String.fromCharCode(hashArray[i]);
+  }
+  return btoa(binary);
+}
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
   if (request.headers.get('origin') !== env.ORIGIN) {
@@ -41,7 +67,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
   const rounds = Object.keys(
     daily.games.reduce(
-      (acc, curr) => {
+      (acc: Record<number, true>, curr: any) => {
         acc[curr.round] = true;
         return acc;
       },
@@ -53,9 +79,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
     throw error(400);
   }
 
-  const cipher = crypto.createCipheriv('aes-256-cbc', env.SECRET_KEY, env.SECRET_IV);
-  const cipherUpdated = cipher.update(getClientAddress(), 'utf8', 'base64');
-  const ipHashed = cipherUpdated + cipher.final('base64');
+  const ipHashed = await hmacSha256(getClientAddress(), env.SECRET_KEY!);
 
   await db
     .insert(schema.results)

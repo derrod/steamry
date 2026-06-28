@@ -1,29 +1,17 @@
-import { CronJob } from 'cron';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import type { Handle } from '@sveltejs/kit';
 import { building } from '$app/environment';
-import generateDailies from '$lib/server/daily/generate-dailies';
-import { db } from '$lib/server/db';
-import fetchApps from '$lib/server/steam/fetch-apps';
+import { initDb } from '$lib/server/db';
 
-if (import.meta.env.PROD && !building) {
-  console.log('Migrating...');
-  await migrate(db, { migrationsFolder: './drizzle' });
-  console.log('Migrations done!\n');
-
-  await fetchApps(true);
-  await generateDailies();
-
-  CronJob.from({
-    cronTime: '00 06 00 * * *',
-    onTick: generateDailies,
-    start: true,
-    utcOffset: 0,
-  });
-
-  CronJob.from({
-    cronTime: '00 01 00 * * mon',
-    onTick: fetchApps,
-    start: true,
-    utcOffset: 0,
-  });
-}
+export const handle: Handle = async ({ event, resolve }) => {
+  try {
+    if (!building && event.platform?.env?.TURSO_CONNECTION_URL) {
+      initDb(
+        event.platform.env.TURSO_CONNECTION_URL,
+        event.platform.env.TURSO_AUTH_TOKEN
+      );
+    }
+  } catch (err) {
+    // Ignore error when accessing platform bindings in a prerenderable route
+  }
+  return resolve(event);
+};

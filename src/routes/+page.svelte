@@ -8,21 +8,22 @@
   import Link from '$lib/components/ui/link.svelte';
 
   const DESCRIPTION = 'A daily Steam review ratio guessing game';
-  const OG_IMAGE = `${env.PUBLIC_ORIGIN}/og-image.png`;
+  const PUBLIC_ORIGIN = env.PUBLIC_ORIGIN || 'https://steamry.pages.dev';
+  const OG_IMAGE = `${PUBLIC_ORIGIN}/og-image.png`;
 </script>
 
 <svelte:head>
   <title>Steamry - {DESCRIPTION}</title>
 
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="{env.PUBLIC_ORIGIN}/" />
+  <meta property="og:url" content="{PUBLIC_ORIGIN}/" />
   <meta property="og:title" content="Steamry" />
   <meta property="og:description" content={DESCRIPTION} />
   <meta property="og:image" content={OG_IMAGE} />
-  <meta property="og:logo" content="{env.PUBLIC_ORIGIN}/logo.png" />
+  <meta property="og:logo" content="{PUBLIC_ORIGIN}/logo.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="{env.PUBLIC_ORIGIN}/" />
+  <meta name="twitter:url" content="{PUBLIC_ORIGIN}/" />
   <meta name="twitter:title" content="Steamry" />
   <meta name="twitter:description" content={DESCRIPTION} />
   <meta name="twitter:image" content={OG_IMAGE} />

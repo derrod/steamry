@@ -5,7 +5,8 @@ import * as schema from '../db/schema';
 import { saveEventLog } from '../event-logs';
 
 const APP_LIST_URL = 'https://api.steampowered.com/IStoreService/GetAppList/v1/';
-const CHUNK_SIZE = 20_000;
+const FETCH_CHUNK_SIZE = 20_000;
+const INSERT_CHUNK_SIZE = 2000;
 const RETRY_ATTEMPTS = 15;
 
 export default async function fetchApps(onlyIfEmpty: boolean = false) {
@@ -25,11 +26,11 @@ export default async function fetchApps(onlyIfEmpty: boolean = false) {
 
     while (!finished) {
       attempts++;
-      console.log(`Fetching ${CHUNK_SIZE} starting from ${lastAppid}`);
+      console.log(`Fetching ${FETCH_CHUNK_SIZE} starting from ${lastAppid}`);
       const detailsUrl = new URL(APP_LIST_URL);
       detailsUrl.searchParams.set('key', process.env.STEAM_API_KEY!);
       detailsUrl.searchParams.set('last_appid', lastAppid.toString());
-      detailsUrl.searchParams.set('max_results', CHUNK_SIZE.toString());
+      detailsUrl.searchParams.set('max_results', FETCH_CHUNK_SIZE.toString());
       detailsUrl.searchParams.set('include_games', true.toString());
       detailsUrl.searchParams.set('include_software', true.toString());
 
@@ -61,16 +62,15 @@ export default async function fetchApps(onlyIfEmpty: boolean = false) {
 
     console.log(`Total apps: ${steamApps.length}\n`);
 
-    await db.transaction(async (tx) => {
-      console.log('Truncating table...');
-      await tx.execute(sql`TRUNCATE TABLE ${schema.steamApps} RESTART IDENTITY`);
+    console.log('Truncating table...');
+    await db.delete(schema.steamApps);
+    await db.run(sql`DELETE FROM sqlite_sequence WHERE name = 'steam_apps'`);
 
-      for (let i = 0; i < steamApps.length; i += CHUNK_SIZE) {
-        const end = Math.min(steamApps.length, i + CHUNK_SIZE);
-        console.log(`Inserting ${i} - ${end}...`);
-        await tx.insert(schema.steamApps).values(steamApps.slice(i, end));
-      }
-    });
+    for (let i = 0; i < steamApps.length; i += INSERT_CHUNK_SIZE) {
+      const end = Math.min(steamApps.length, i + INSERT_CHUNK_SIZE);
+      console.log(`Inserting ${i} - ${end}...`);
+      await db.insert(schema.steamApps).values(steamApps.slice(i, end));
+    }
 
     await saveEventLog('fetch-apps-finished', { appsTotal: steamApps.length });
 

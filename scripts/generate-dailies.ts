@@ -1,5 +1,8 @@
 import { getScore, getTimezoneDate } from '../src/lib';
+import { initLocalDb } from '../src/lib/server/db';
 import makeNewDaily from '../src/lib/server/daily/make-new-daily';
+
+initLocalDb();
 
 const today = getTimezoneDate(new Date().getTimezoneOffset());
 const daily = await makeNewDaily(today);

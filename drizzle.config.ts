@@ -1,14 +1,31 @@
 import { defineConfig } from 'drizzle-kit';
+import dotenv from 'dotenv';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Load .env and .dev.vars environment variables for CLI tooling
+dotenv.config();
+const devVarsPath = path.resolve('.dev.vars');
+if (fs.existsSync(devVarsPath)) {
+  const devVars = dotenv.parse(fs.readFileSync(devVarsPath));
+  for (const key in devVars) {
+    process.env[key] = devVars[key];
+  }
+}
+
+const url = process.env.TURSO_CONNECTION_URL || 'file:local.db';
+const authToken = process.env.TURSO_AUTH_TOKEN;
+
+const isTurso = url.startsWith('libsql://') || url.startsWith('https://');
+const dialect = isTurso ? 'turso' : 'sqlite';
 
 export default defineConfig({
   schema: './src/lib/server/db/schema.ts',
-  dialect: 'postgresql',
+  out: './drizzle',
+  dialect: dialect as any,
   dbCredentials: {
-    database: process.env.DB_DATABASE!,
-    user: process.env.DB_USER!,
-    password: process.env.DB_PASSWORD!,
-    host: process.env.DB_HOST!,
-    port: Number(process.env.DB_PORT!),
+    url: url,
+    authToken: authToken,
   },
   verbose: true,
   strict: true,

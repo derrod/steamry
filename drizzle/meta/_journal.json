@@ -1,68 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1756604230085,
-      "tag": "0000_sour_gamora",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1756710291692,
-      "tag": "0001_daffy_jack_power",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1756713934084,
-      "tag": "0002_next_azazel",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1756723720452,
-      "tag": "0003_daily_next_avengers",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1756738277050,
-      "tag": "0004_elite_xavin",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1756904329858,
-      "tag": "0005_misty_polaris",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1756970682158,
-      "tag": "0006_acoustic_jubilee",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1756983222319,
-      "tag": "0007_nosy_amazoness",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1757222149859,
-      "tag": "0008_famous_crystal",
+      "version": "6",
+      "when": 1782605173802,
+      "tag": "0000_normal_black_bird",
       "breakpoints": true
     }
   ]

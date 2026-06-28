@@ -1,0 +1,13 @@
+name = "steamry"
+main = "src/worker.js"
+compatibility_date = "2024-04-03"
+compatibility_flags = [ "nodejs_compat" ]
+
+[assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
+
+[triggers]
+crons = [ "0 1 * * 1", "0 6 * * *" ]
+
+

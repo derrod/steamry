@@ -6,7 +6,16 @@ declare global {
     // interface Locals {}
     // interface PageData {}
     // interface PageState {}
-    // interface Platform {}
+    interface Platform {
+      env: {
+        TURSO_CONNECTION_URL: string;
+        TURSO_AUTH_TOKEN?: string;
+        STEAM_API_KEY?: string;
+        SECRET_KEY?: string;
+        ORIGIN?: string;
+        REMOTE_CONTROL_KEY?: string;
+      };
+    }
   }
 }
 

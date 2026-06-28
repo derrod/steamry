@@ -22,7 +22,7 @@
 
   const months = $derived(
     data.dailies.reduce(
-      (prev, curr) => {
+      (prev: Record<string, (NewDaily | null)[]>, curr: NewDaily) => {
         const year = curr.date.getFullYear();
         const month = curr.date.getMonth();
         const key = `${year}-${month}`;

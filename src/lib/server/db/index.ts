@@ -1,18 +1,55 @@
-import dotenv from 'dotenv';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { createRequire } from 'node:module';
+import { createClient } from '@libsql/client';
+import { drizzle, type LibSQLDatabase } from 'drizzle-orm/libsql';
 import * as schema from './schema';
 
-if (!import.meta.env || !import.meta.env.PROD) {
-  dotenv.config();
+export type Database = LibSQLDatabase<typeof schema>;
+
+let _db: Database | null = null;
+
+export function initDb(url: string, authToken?: string) {
+  if (_db) return;
+  const client = createClient({ url, authToken });
+  _db = drizzle(client, { schema, casing: 'snake_case' });
 }
 
-const client = postgres({
-  database: process.env.DB_DATABASE!,
-  user: process.env.DB_USER!,
-  password: process.env.DB_PASSWORD!,
-  host: process.env.DB_HOST!,
-  port: Number(process.env.DB_PORT!),
-});
+export function initLocalDb() {
+  if (_db) return;
+  const require = createRequire(import.meta.url);
+  const dotenv = require('dotenv');
+  const path = require('node:path');
+  const fs = require('node:fs');
 
-export const db = drizzle(client, { schema, casing: 'snake_case' });
+  dotenv.config();
+
+  // Load from .dev.vars if it exists (standard local secrets for wrangler/workers)
+  const devVarsPath = path.resolve('.dev.vars');
+  if (fs.existsSync(devVarsPath)) {
+    const devVars = dotenv.parse(fs.readFileSync(devVarsPath));
+    for (const key in devVars) {
+      process.env[key] = devVars[key];
+    }
+  }
+
+  const url = process.env.TURSO_CONNECTION_URL;
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+
+  if (url) {
+    console.log(`Connecting to Turso database at ${url}...`);
+    const client = createClient({ url, authToken });
+    _db = drizzle(client, { schema, casing: 'snake_case' });
+  } else {
+    console.log('No TURSO_CONNECTION_URL found, falling back to local file local.db...');
+    const client = createClient({ url: 'file:local.db' });
+    _db = drizzle(client, { schema, casing: 'snake_case' });
+  }
+}
+
+export const db: Database = new Proxy({} as any, {
+  get(target, prop, receiver) {
+    if (!_db) {
+      throw new Error("Database not initialized! Call initDb(url, token) or initLocalDb() first.");
+    }
+    return Reflect.get(_db, prop, receiver);
+  }
+});

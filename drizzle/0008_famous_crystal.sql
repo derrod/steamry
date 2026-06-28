@@ -1,1 +1,0 @@
-ALTER TABLE "dailies" ADD COLUMN "description" text;
