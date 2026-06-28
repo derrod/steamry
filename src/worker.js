@@ -2,6 +2,7 @@ import worker from './../.svelte-kit/cloudflare/_worker.js';
 import generateDailies from './lib/server/daily/generate-dailies.js';
 import { initDb } from './lib/server/db/index.js';
 import fetchApps from './lib/server/steam/fetch-apps.js';
+import fillGameCache from './lib/server/steam/fill-game-cache.js';
 
 export default {
   async fetch(req, env, ctx) {
@@ -32,11 +33,20 @@ export default {
           await fetchApps();
         } else if (event.cron === '0 6 * * *' || event.cron === '00 06 00 * * *') {
           console.log('Running generateDailies...');
-          await generateDailies();
+          await generateDailies(true);
+        } else if (
+          event.cron === '0 * * * *' ||
+          event.cron === '00 00 * * * *' ||
+          event.cron === '00 * * * *' ||
+          event.cron === '00 00 * * *' ||
+          event.cron === '0 * * *'
+        ) {
+          console.log('Running fillGameCache...');
+          await fillGameCache();
         } else {
-          console.log('Running fallback: fetchApps(true) and generateDailies()...');
-          await fetchApps(true);
-          await generateDailies();
+          console.log('Running fallback: fillGameCache() and generateDailies(true)...');
+          await fillGameCache();
+          await generateDailies(true);
         }
       })(),
     );

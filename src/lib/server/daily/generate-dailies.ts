@@ -4,11 +4,11 @@ import { db } from '../db';
 import * as schema from '../db/schema';
 import makeNewDaily from './make-new-daily';
 
-export default async function generateDailies() {
+export default async function generateDailies(useCache = false) {
   const today = getTodayDate();
   const todayDaily = await db.query.dailies.findFirst({ where: eq(schema.dailies.date, today) });
   if (!todayDaily) {
-    await makeNewDaily(today);
+    await makeNewDaily(today, useCache);
   } else {
     console.log(`
     \nDaily for ${today.toISOString()} already exists`);
@@ -19,7 +19,7 @@ export default async function generateDailies() {
     where: eq(schema.dailies.date, tomorrow),
   });
   if (!tomorrowDaily) {
-    await makeNewDaily(tomorrow);
+    await makeNewDaily(tomorrow, useCache);
   } else {
     console.log(`\nDaily for ${tomorrow.toISOString()} already exists`);
   }

@@ -101,3 +101,38 @@ export const eventLogs = sqliteTable('event_logs', {
 
 export type EventLog = typeof eventLogs.$inferSelect;
 export type NewEventLog = typeof eventLogs.$inferInsert;
+
+export const gameCache = sqliteTable('game_cache', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  appid: integer('appid').unique().notNull(),
+  name: text('name').notNull(),
+  reviewsPositive: integer('reviews_positive').notNull(),
+  reviewsNegative: integer('reviews_negative').notNull(),
+  description: text('description').notNull(),
+  price: text('price'),
+  releaseDate: text('release_date').notNull(),
+  headerImage: text('header_image').notNull(),
+  developers: text('developers', { mode: 'json' }).$type<string[]>().notNull(),
+  publishers: text('publishers', { mode: 'json' }).$type<string[]>().notNull(),
+  tags: text('tags', { mode: 'json' }).$type<string[]>(),
+  categories: text('categories', { mode: 'json' }).$type<string[]>().notNull(),
+  genres: text('genres', { mode: 'json' }).$type<string[]>().notNull(),
+  screenshots: text('screenshots', { mode: 'json' })
+    .$type<{ thumbnail: string; src: string }[]>()
+    .notNull(),
+  trailers: text('trailers', { mode: 'json' })
+    .$type<{ thumbnail: string; webm?: string; mp4?: string }[]>()
+    .notNull(),
+  contentDescriptors: text('content_descriptors', { mode: 'json' })
+    .$type<ContentDescriptor[]>()
+    .notNull(),
+  requiredAge: integer('required_age').notNull().default(0),
+  markedAsNsfw: integer('marked_as_nsfw', { mode: 'boolean' }).notNull().default(false),
+  isHandPicked: integer('is_hand_picked', { mode: 'boolean' }).notNull().default(false),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export type GameCache = typeof gameCache.$inferSelect;
+export type NewGameCache = typeof gameCache.$inferInsert;

@@ -1,4 +1,7 @@
+import { inArray } from 'drizzle-orm';
 import { MAX_ERROR_LENGTH } from '$lib';
+import { db } from '../db';
+import * as schema from '../db/schema';
 import { saveEventLog } from '../event-logs';
 import getRandomGames from '../steam/get-random-games';
 import makeRounds from './make-rounds';
@@ -8,11 +11,52 @@ const ROUNDS = 10;
 const GAMES_PER_ROUND = 2;
 const MIN_PERCENTAGE_DIFF = 5;
 
-export default async function makeNewDaily(date: Date) {
+export default async function makeNewDaily(date: Date, useCache = false) {
   try {
-    console.log(`\nMaking daily for ${date.toISOString()}`);
+    console.log(`\nMaking daily for ${date.toISOString()} (useCache: ${useCache})`);
 
-    const gameInfos = await getRandomGames(ROUNDS * GAMES_PER_ROUND);
+    let gameInfos: schema.NewGameInfoOnly[] | null = null;
+
+    if (useCache) {
+      const amountNeeded = ROUNDS * GAMES_PER_ROUND;
+      const cached = await db
+        .select()
+        .from(schema.gameCache)
+        .orderBy(schema.gameCache.id)
+        .limit(amountNeeded);
+
+      if (cached.length < amountNeeded) {
+        throw new Error(`Not enough games in cache! Have ${cached.length}, need ${amountNeeded}`);
+      }
+
+      const idsToDelete = cached.map((c) => c.id);
+      await db.delete(schema.gameCache).where(inArray(schema.gameCache.id, idsToDelete));
+
+      gameInfos = cached.map((c) => ({
+        appid: c.appid,
+        name: c.name,
+        reviewsPositive: c.reviewsPositive,
+        reviewsNegative: c.reviewsNegative,
+        description: c.description,
+        price: c.price,
+        releaseDate: c.releaseDate,
+        headerImage: c.headerImage,
+        developers: c.developers,
+        publishers: c.publishers,
+        tags: c.tags,
+        categories: c.categories,
+        genres: c.genres,
+        screenshots: c.screenshots,
+        trailers: c.trailers,
+        contentDescriptors: c.contentDescriptors,
+        requiredAge: c.requiredAge,
+        markedAsNsfw: c.markedAsNsfw,
+        isHandPicked: c.isHandPicked,
+      }));
+    } else {
+      gameInfos = await getRandomGames(ROUNDS * GAMES_PER_ROUND);
+    }
+
     if (!gameInfos || gameInfos.length === 0) {
       throw new Error('No games!');
     }
