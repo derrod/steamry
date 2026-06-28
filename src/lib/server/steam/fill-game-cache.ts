@@ -1,11 +1,9 @@
-import { eq, min, max, count } from 'drizzle-orm';
+import { min, max, count, inArray } from 'drizzle-orm';
 import { MAX_ERROR_LENGTH } from '$lib';
 import { db } from '../db';
 import * as schema from '../db/schema';
 import { saveEventLog } from '../event-logs';
 import fetchGameInfo from './fetch-game-info';
-
-const MAX_ATTEMPTS = 25;
 
 export default async function fillGameCache(): Promise<void> {
   try {
@@ -17,9 +15,12 @@ export default async function fillGameCache(): Promise<void> {
       return;
     }
 
-    const amountNeeded = 25;
+    // Since we are limited to 50 subrequests per invocation on Cloudflare Workers,
+    // and each fetchGameInfo takes 2 subrequests, we want to fetch at most 18
+    // successfully parsed games in one run to stay safely under the limit.
+    const amountNeeded = Math.min(18, 100 - currentCount);
     console.log(
-      `Game cache has ${currentCount} rows. Fetching ${amountNeeded} games to fill cache...`,
+      `Game cache has ${currentCount} rows. Fetching up to ${amountNeeded} games to fill cache...`,
     );
 
     const minMaxIdResult = (
@@ -36,44 +37,71 @@ export default async function fillGameCache(): Promise<void> {
       throw new Error('minId or maxId is null');
     }
 
-    let addedCount = 0;
-    let attempts = 0;
-    const usedIds: number[] = [];
+    const randomIds: number[] = [];
+    const usedIds = new Set<number>();
+    const candidateFetchSize = amountNeeded * 3;
 
-    while (addedCount < amountNeeded) {
-      attempts += 1;
-      if (attempts > MAX_ATTEMPTS) {
-        console.warn(`Exceeded ${MAX_ATTEMPTS} attempts while filling game cache`);
+    for (let i = 0; i < candidateFetchSize; i++) {
+      const id = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
+      if (!usedIds.has(id)) {
+        usedIds.add(id);
+        randomIds.push(id);
+      }
+    }
+
+    if (randomIds.length === 0) {
+      console.log('No random IDs generated.');
+      return;
+    }
+
+    const steamApps = await db
+      .select()
+      .from(schema.steamApps)
+      .where(inArray(schema.steamApps.id, randomIds));
+
+    if (steamApps.length === 0) {
+      console.log('No steam apps found for the generated IDs.');
+      return;
+    }
+
+    const appids = steamApps.map((app) => app.appid);
+
+    const existingCacheEntries = await db
+      .select({ appid: schema.gameCache.appid })
+      .from(schema.gameCache)
+      .where(inArray(schema.gameCache.appid, appids));
+
+    const existingAppids = new Set(existingCacheEntries.map((entry) => entry.appid));
+
+    // Filter candidate list to only those not in the cache
+    const candidates = steamApps.filter((app) => !existingAppids.has(app.appid));
+
+    console.log(`Found ${candidates.length} unique candidates not currently in cache.`);
+
+    const gamesToInsert: schema.NewGameCache[] = [];
+    let subrequestCount = 4; // countResult, minMaxIdResult, steamApps query, existingCacheEntries query
+
+    for (const steamApp of candidates) {
+      if (gamesToInsert.length >= amountNeeded) {
+        break;
+      }
+      // If we are getting too close to the 50 subrequest limit (e.g. 48), stop processing.
+      // fetchGameInfo takes 2 subrequests, and inserting takes 1.
+      if (subrequestCount + 3 >= 50) {
+        console.warn(
+          `Approaching Cloudflare subrequest limit (${subrequestCount}). Stopping batch.`,
+        );
         break;
       }
 
-      const id = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
-
-      if (usedIds.includes(id)) {
-        continue;
-      }
-      usedIds.push(id);
-
-      const steamApp = await db.query.steamApps.findFirst({ where: eq(schema.steamApps.id, id) });
-      if (!steamApp) {
-        continue;
-      }
-
-      // Check if appid is already in gameCache
-      const existingInCache = await db.query.gameCache.findFirst({
-        where: eq(schema.gameCache.appid, steamApp.appid),
-      });
-      if (existingInCache) {
-        continue;
-      }
-
+      console.log(`Fetching game info for appid: ${steamApp.appid} (${steamApp.name})`);
+      subrequestCount += 2; // fetchGameInfo calls 2 APIs
       const game = await fetchGameInfo(steamApp.appid.toString());
       if (!game) {
         continue;
       }
 
-      // Write to game_cache DB
-      await db.insert(schema.gameCache).values({
+      gamesToInsert.push({
         appid: game.appid,
         name: game.name,
         reviewsPositive: game.reviewsPositive,
@@ -94,15 +122,19 @@ export default async function fillGameCache(): Promise<void> {
         markedAsNsfw: game.markedAsNsfw,
         isHandPicked: game.isHandPicked,
       });
+    }
 
-      addedCount += 1;
+    if (gamesToInsert.length > 0) {
+      console.log(`Inserting ${gamesToInsert.length} games into cache...`);
+      // Batch insert the games in 1 subrequest
+      await db.insert(schema.gameCache).values(gamesToInsert);
     }
 
     await saveEventLog('fill-game-cache-finished', {
-      added: addedCount,
-      totalCount: currentCount + addedCount,
+      added: gamesToInsert.length,
+      totalCount: currentCount + gamesToInsert.length,
     });
-    console.log(`Successfully filled game cache with ${addedCount} games.`);
+    console.log(`Successfully filled game cache with ${gamesToInsert.length} games.`);
   } catch (err) {
     console.error('Error filling game cache:', err);
     try {
