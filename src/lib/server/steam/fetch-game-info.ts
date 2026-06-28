@@ -111,6 +111,11 @@ export default async function fetchGameInfo(appid: string): Promise<schema.NewGa
     console.error(`App ${appid} tags ${tagsResponse.status} ${tagsResponse.statusText}`);
   }
 
+  if (tags && tags.some((tag) => tag.toLowerCase() === 'sexual content')) {
+    console.error(`App ${appid} has Sexual Content tag`);
+    return null;
+  }
+
   return {
     appid: appDetails.steam_appid,
     name: appDetails.name,
