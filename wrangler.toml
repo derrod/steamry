@@ -10,4 +10,6 @@ binding = "ASSETS"
 [triggers]
 crons = [ "0 1 * * 1", "0 6 * * *" ]
 
-
+[vars]
+ORIGIN="https://steamry.rodney.io"
+PUBLIC_ORIGIN = "https://steamry.rodney.io"
