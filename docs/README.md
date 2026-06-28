@@ -105,6 +105,31 @@ curl -X POST http://localhost:8787/remote-control/regenerate-daily \
   -d '{"key": "secret", "date": "2026-06-28"}'
 ```
 
+#### Create Hand-Picked Daily
+
+Create a specific, hand-picked daily challenge with custom Steam app IDs (10 rounds of 2 games each):
+
+```bash
+curl -X POST http://localhost:8787/remote-control/handpick-daily \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "secret",
+    "date": "2026-06-29",
+    "rounds": [
+      [1245620, 1817070],
+      [1145360, 2050650],
+      [1056000, 1506830],
+      [1151640, 1551360],
+      [1172470, 1228240],
+      [1067310, 1238840],
+      [1225330, 1289310],
+      [1196470, 1086000],
+      [1127700, 1086940],
+      [1116580, 1057090]
+    ]
+  }'
+```
+
 #### View System Event Logs
 
 ```bash
