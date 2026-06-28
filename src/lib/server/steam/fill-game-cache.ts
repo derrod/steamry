@@ -17,8 +17,8 @@ export default async function fillGameCache(): Promise<void> {
 
     // Since we are limited to 50 subrequests per invocation on Cloudflare Workers,
     // and each fetchGameInfo takes 3 subrequests (Steam Store, Reviews, and SteamSpy APIs),
-    // we want to fetch at most 14 successfully parsed games in one run to stay safely under the limit.
-    const amountNeeded = Math.min(14, 100 - currentCount);
+    // we want to fetch at most 10 successfully parsed games in one run to stay safely under the limit.
+    const amountNeeded = Math.min(10, 100 - currentCount);
     console.log(
       `Game cache has ${currentCount} rows. Fetching up to ${amountNeeded} games to fill cache...`,
     );
