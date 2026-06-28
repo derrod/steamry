@@ -65,6 +65,33 @@
     <div class="mt-4 text-center">
       <Button href="/replay" size="sm">Play previous dailies</Button>
     </div>
+    <details
+      class="mt-6 overflow-hidden border border-mute-foreground/35 bg-card-background-2/45 text-left"
+    >
+      <summary
+        class="flex cursor-pointer items-center justify-between px-4 py-3 font-semibold text-card-foreground transition-colors select-none hover:bg-mute-background/40"
+      >
+        <span>Changelog</span>
+        <span class="text-xs text-mute-foreground">Click to expand</span>
+      </summary>
+      <div class="border-t border-mute-foreground/20 bg-card-background-2/20 px-4 py-3">
+        <div>
+          <h3 class="mb-2 text-sm font-bold text-primary-foreground">June 28, 2026</h3>
+          <ul class="list-inside list-disc space-y-1.5 pl-1 text-sm text-foreground/90">
+            <li>
+              Moved app to Cloudflare Workers + Turso to simplify hosting and hopefully survive on
+              the free tier :P
+            </li>
+            <li>
+              Filtered out games based on user tags, but only consider the top 5 ones as they are
+              quite unreliable (e.g. Blender is tagged "Hentai", but it's quite low down.)
+            </li>
+            <li>Removed analytics</li>
+            <li>Added this changelog, lol</li>
+          </ul>
+        </div>
+      </div>
+    </details>
     <p class="mt-6">
       Inspired by <Link href="https://scrandle.com/">Scrandle</Link>. Not affiliated with Valve
       Corporation.
