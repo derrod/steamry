@@ -84,11 +84,7 @@
     }
 
     if (!canAdvance) {
-      const payload: Record<string, string> = {};
-      payload[date.toISOString()] = guessesToString(guesses);
       if (!isReplay) {
-        window.umami.track('guessed', payload);
-
         const resultBody: ResultBody = { date: date.toISOString(), guesses };
         fetch('/save-result', {
           method: 'POST',
@@ -97,8 +93,6 @@
           },
           body: JSON.stringify(resultBody),
         });
-      } else {
-        window.umami.track('replay-guessed', payload);
       }
     }
 
