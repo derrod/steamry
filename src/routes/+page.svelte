@@ -8,7 +8,7 @@
   import Link from '$lib/components/ui/link.svelte';
 
   const DESCRIPTION = 'A daily Steam review ratio guessing game';
-  const PUBLIC_ORIGIN = env.PUBLIC_ORIGIN || 'https://steamry.pages.dev';
+  const PUBLIC_ORIGIN = env.PUBLIC_ORIGIN || 'https://steamry.rodney.io';
   const OG_IMAGE = `${PUBLIC_ORIGIN}/og-image.png`;
 </script>
 
