@@ -6,7 +6,7 @@ import { saveEventLog } from '../event-logs';
 
 const APP_LIST_URL = 'https://api.steampowered.com/IStoreService/GetAppList/v1/';
 const FETCH_CHUNK_SIZE = 20_000;
-const INSERT_CHUNK_SIZE = 2000;
+const INSERT_CHUNK_SIZE = 10_000;
 const RETRY_ATTEMPTS = 15;
 
 export default async function fetchApps(onlyIfEmpty: boolean = false) {
