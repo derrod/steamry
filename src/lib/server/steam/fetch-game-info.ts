@@ -94,6 +94,7 @@ export default async function fetchGameInfo(appid: string): Promise<schema.NewGa
   }
 
   let tags: string[] | null = null;
+  let top5Tags: string[] = [];
 
   const tagsUrl = new URL(STEAMSPY_API_URL);
   tagsUrl.searchParams.set('request', 'appdetails');
@@ -103,7 +104,11 @@ export default async function fetchGameInfo(appid: string): Promise<schema.NewGa
   if (tagsResponse.ok) {
     try {
       const tagsResult = (await tagsResponse.json()) as SteamSpyResponse;
-      tags = Object.keys(tagsResult.tags);
+      const sortedTagsWithCounts = Object.entries(tagsResult.tags || {}).sort(
+        (a, b) => b[1] - a[1],
+      );
+      top5Tags = sortedTagsWithCounts.slice(0, 5).map(([tag]) => tag);
+      tags = sortedTagsWithCounts.map(([tag]) => tag);
     } catch (err) {
       console.error(err);
     }
@@ -111,14 +116,14 @@ export default async function fetchGameInfo(appid: string): Promise<schema.NewGa
     console.error(`App ${appid} tags ${tagsResponse.status} ${tagsResponse.statusText}`);
   }
 
+  const bannedTags = ['hentai', 'sexual content'];
   if (
-    tags &&
-    tags.some((tag) => {
+    top5Tags.some((tag) => {
       const lower = tag.toLowerCase();
-      return lower === 'hentai';
+      return bannedTags.includes(lower);
     })
   ) {
-    console.error(`App ${appid} has Hentai tag`);
+    console.error(`App ${appid} has banned tag in top 5: ${JSON.stringify(top5Tags)}`);
     return null;
   }
 
