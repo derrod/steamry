@@ -20,7 +20,8 @@
     "games:fetch": "tsx scripts/fetch-apps.ts",
     "games:random": "tsx scripts/get-random-games.ts",
     "games:generate": "tsx scripts/generate-dailies.ts",
-    "games:info": "tsx scripts/fetch-game-info.ts"
+    "games:info": "tsx scripts/fetch-game-info.ts",
+    "games:fill": "tsx scripts/fill-game-cache.ts"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.5",
