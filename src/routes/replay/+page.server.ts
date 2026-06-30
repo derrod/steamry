@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const dailies = await db.query.dailies.findMany({
     orderBy: asc(schema.dailies.date),
     where: lt(schema.dailies.date, date),
-    columns: { date: true, description: true },
+    columns: { id: true, date: true, description: true },
   });
 
   return { dailies };
