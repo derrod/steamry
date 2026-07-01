@@ -76,6 +76,14 @@
       </summary>
       <div class="border-t border-mute-foreground/20 bg-card-background-2/20 px-4 py-3">
         <div>
+          <h3 class="mb-2 text-sm font-bold text-primary-foreground">July 1, 2026</h3>
+          <ul class="list-inside list-disc space-y-1.5 pl-1 text-sm text-foreground/90">
+            <li>
+              Some more optimisations so we no longer need Turso and can run completely on
+              Cloudflare Workers (for free!)
+            </li>
+            <li>Fixed Replay page not loading correctly unless hard-refreshed</li>
+          </ul>
           <h3 class="mb-2 text-sm font-bold text-primary-foreground">June 29, 2026</h3>
           <ul class="list-inside list-disc space-y-1.5 pl-1 text-sm text-foreground/90">
             <li>
