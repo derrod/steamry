@@ -16,6 +16,7 @@ export default async function makeNewDaily(date: Date, useCache = false) {
     console.log(`\nMaking daily for ${date.toISOString()} (useCache: ${useCache})`);
 
     let gameInfos: schema.NewGameInfoOnly[] | null = null;
+    let idsToDelete: number[] = [];
 
     if (useCache) {
       const amountNeeded = ROUNDS * GAMES_PER_ROUND;
@@ -29,8 +30,7 @@ export default async function makeNewDaily(date: Date, useCache = false) {
         throw new Error(`Not enough games in cache! Have ${cached.length}, need ${amountNeeded}`);
       }
 
-      const idsToDelete = cached.map((c) => c.id);
-      await db.delete(schema.gameCache).where(inArray(schema.gameCache.id, idsToDelete));
+      idsToDelete = cached.map((c) => c.id);
 
       gameInfos = cached.map((c) => ({
         appid: c.appid,
@@ -68,6 +68,10 @@ export default async function makeNewDaily(date: Date, useCache = false) {
     }
 
     const daily = await saveDaily(date, rounds);
+
+    if (idsToDelete.length > 0) {
+      await db.delete(schema.gameCache).where(inArray(schema.gameCache.id, idsToDelete));
+    }
 
     await saveEventLog('make-new-daily-finished', daily);
 
