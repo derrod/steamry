@@ -1,8 +1,9 @@
-import { min, max, count, inArray } from 'drizzle-orm';
+import { count, inArray } from 'drizzle-orm';
 import { MAX_ERROR_LENGTH } from '$lib';
 import { db } from '../db';
 import * as schema from '../db/schema';
 import { saveEventLog } from '../event-logs';
+import { getSteamAppids } from '../kv';
 import fetchGameInfo from './fetch-game-info';
 
 export default async function fillGameCache(): Promise<void> {
@@ -15,73 +16,48 @@ export default async function fillGameCache(): Promise<void> {
       return;
     }
 
-    // Since we are limited to 50 subrequests per invocation on Cloudflare Workers,
-    // and each fetchGameInfo takes 3 subrequests (Steam Store, Reviews, and SteamSpy APIs),
-    // we want to fetch at most 10 successfully parsed games in one run to stay safely under the limit.
     const amountNeeded = Math.min(10, 100 - currentCount);
     console.log(
       `Game cache has ${currentCount} rows. Fetching up to ${amountNeeded} games to fill cache...`,
     );
 
-    const minMaxIdResult = (
-      await db
-        .select({
-          minId: min(schema.steamApps.id),
-          maxId: max(schema.steamApps.id),
-        })
-        .from(schema.steamApps)
-    )[0];
-
-    const { minId, maxId } = minMaxIdResult;
-    if (minId === null || maxId === null) {
-      throw new Error('minId or maxId is null');
+    const appids = await getSteamAppids();
+    if (appids.length === 0) {
+      throw new Error('No steam appids found');
     }
 
-    const randomIds: number[] = [];
-    const usedIds = new Set<number>();
+    const randomAppids: number[] = [];
+    const usedAppids = new Set<number>();
     const candidateFetchSize = amountNeeded * 3;
 
     for (let i = 0; i < candidateFetchSize; i++) {
-      const id = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
-      if (!usedIds.has(id)) {
-        usedIds.add(id);
-        randomIds.push(id);
+      const appid = appids[Math.floor(Math.random() * appids.length)];
+      if (!usedAppids.has(appid)) {
+        usedAppids.add(appid);
+        randomAppids.push(appid);
       }
     }
 
-    if (randomIds.length === 0) {
-      console.log('No random IDs generated.');
+    if (randomAppids.length === 0) {
+      console.log('No random AppIDs generated.');
       return;
     }
-
-    const steamApps = await db
-      .select()
-      .from(schema.steamApps)
-      .where(inArray(schema.steamApps.id, randomIds));
-
-    if (steamApps.length === 0) {
-      console.log('No steam apps found for the generated IDs.');
-      return;
-    }
-
-    const appids = steamApps.map((app) => app.appid);
 
     const existingCacheEntries = await db
       .select({ appid: schema.gameCache.appid })
       .from(schema.gameCache)
-      .where(inArray(schema.gameCache.appid, appids));
+      .where(inArray(schema.gameCache.appid, randomAppids));
 
     const existingAppids = new Set(existingCacheEntries.map((entry) => entry.appid));
 
-    // Filter candidate list to only those not in the cache
-    const candidates = steamApps.filter((app) => !existingAppids.has(app.appid));
+    const candidates = randomAppids.filter((appid) => !existingAppids.has(appid));
 
     console.log(`Found ${candidates.length} unique candidates not currently in cache.`);
 
     const gamesToInsert: schema.NewGameCache[] = [];
-    let subrequestCount = 4; // countResult, minMaxIdResult, steamApps query, existingCacheEntries query
+    let subrequestCount = 2; // countResult, existingCacheEntries query
 
-    for (const steamApp of candidates) {
+    for (const appid of candidates) {
       if (gamesToInsert.length >= amountNeeded) {
         break;
       }
@@ -94,9 +70,9 @@ export default async function fillGameCache(): Promise<void> {
         break;
       }
 
-      console.log(`Fetching game info for appid: ${steamApp.appid} (${steamApp.name})`);
+      console.log(`Fetching game info for appid: ${appid}`);
       subrequestCount += 3; // fetchGameInfo calls 3 APIs
-      const game = await fetchGameInfo(steamApp.appid.toString());
+      const game = await fetchGameInfo(appid.toString());
       if (!game) {
         continue;
       }

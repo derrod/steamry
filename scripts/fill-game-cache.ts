@@ -1,7 +1,8 @@
-import { min, max, count, inArray } from 'drizzle-orm';
+import { count, inArray } from 'drizzle-orm';
 import { db, initLocalDb } from '../src/lib/server/db';
 import * as schema from '../src/lib/server/db/schema';
 import fetchGameInfo from '../src/lib/server/steam/fetch-game-info';
+import { getSteamAppids } from '../src/lib/server/kv';
 
 initLocalDb();
 
@@ -18,70 +19,50 @@ async function fillCacheLocally() {
 
     console.log(`Current cache size: ${currentCount}. Filling to ${TARGET} items...`);
 
-    const minMaxIdResult = (
-      await db
-        .select({
-          minId: min(schema.steamApps.id),
-          maxId: max(schema.steamApps.id),
-        })
-        .from(schema.steamApps)
-    )[0];
-
-    const { minId, maxId } = minMaxIdResult;
-    if (minId === null || maxId === null) {
-      throw new Error('No apps found in steam_apps table. Run games:fetch first.');
+    const appids = await getSteamAppids();
+    if (appids.length === 0) {
+      throw new Error('No steam appids found. Run games:fetch first.');
     }
 
     while (currentCount < TARGET) {
       const needed = TARGET - currentCount;
       console.log(`Cache needs ${needed} more games.`);
 
-      // Generate random app IDs
-      const randomIds: number[] = [];
-      const usedIds = new Set<number>();
+      // Generate random app IDs from the flat list
+      const randomAppids: number[] = [];
+      const usedAppids = new Set<number>();
       for (let i = 0; i < needed * 3; i++) {
-        const id = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
-        if (!usedIds.has(id)) {
-          usedIds.add(id);
-          randomIds.push(id);
+        const appid = appids[Math.floor(Math.random() * appids.length)];
+        if (!usedAppids.has(appid)) {
+          usedAppids.add(appid);
+          randomAppids.push(appid);
         }
       }
 
-      if (randomIds.length === 0) {
+      if (randomAppids.length === 0) {
         break;
       }
 
-      // Fetch candidates from steamApps
-      const steamApps = await db
-        .select()
-        .from(schema.steamApps)
-        .where(inArray(schema.steamApps.id, randomIds));
-
-      if (steamApps.length === 0) {
-        continue;
-      }
-
-      const appids = steamApps.map((app) => app.appid);
       const existingCacheEntries = await db
         .select({ appid: schema.gameCache.appid })
         .from(schema.gameCache)
-        .where(inArray(schema.gameCache.appid, appids));
+        .where(inArray(schema.gameCache.appid, randomAppids));
 
       const existingAppids = new Set(existingCacheEntries.map((entry) => entry.appid));
-      const candidates = steamApps.filter((app) => !existingAppids.has(app.appid));
+      const candidates = randomAppids.filter((appid) => !existingAppids.has(appid));
 
       console.log(`Processing ${candidates.length} candidate apps...`);
 
       const gamesToInsert: schema.NewGameCache[] = [];
 
-      for (const steamApp of candidates) {
+      for (const appid of candidates) {
         if (currentCount + gamesToInsert.length >= TARGET) {
           break;
         }
 
-        console.log(`Fetching game: ${steamApp.name} (appid: ${steamApp.appid})`);
+        console.log(`Fetching game info for appid: ${appid}`);
         try {
-          const game = await fetchGameInfo(steamApp.appid.toString());
+          const game = await fetchGameInfo(appid.toString());
           if (game) {
             gamesToInsert.push({
               appid: game.appid,
@@ -107,7 +88,7 @@ async function fillCacheLocally() {
             console.log(`Successfully fetched and queued: ${game.name}`);
           }
         } catch (e) {
-          console.error(`Failed to fetch info for appid ${steamApp.appid}:`, e);
+          console.error(`Failed to fetch info for appid ${appid}:`, e);
         }
 
         // Wait a tiny bit between calls to be nice to Steam API

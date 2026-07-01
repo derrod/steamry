@@ -1,19 +1,16 @@
-import { count, sql } from 'drizzle-orm';
 import { MAX_ERROR_LENGTH } from '$lib';
-import { db } from '../db';
-import * as schema from '../db/schema';
 import { saveEventLog } from '../event-logs';
+import { getSteamAppids, saveSteamAppids } from '../kv';
 
 const APP_LIST_URL = 'https://api.steampowered.com/IStoreService/GetAppList/v1/';
 const FETCH_CHUNK_SIZE = 20_000;
-const INSERT_CHUNK_SIZE = 10_000;
 const RETRY_ATTEMPTS = 15;
 
 export default async function fetchApps(onlyIfEmpty: boolean = false) {
   try {
     if (onlyIfEmpty) {
-      const { rows } = (await db.select({ rows: count() }).from(schema.steamApps))[0];
-      if (rows > 0) {
+      const existing = await getSteamAppids();
+      if (existing && existing.length > 0) {
         console.log('Steam apps already fetched!');
         return;
       }
@@ -60,19 +57,12 @@ export default async function fetchApps(onlyIfEmpty: boolean = false) {
       }
     }
 
-    console.log(`Total apps: ${steamApps.length}\n`);
+    console.log(`Total apps fetched: ${steamApps.length}\n`);
 
-    console.log('Truncating table...');
-    await db.delete(schema.steamApps);
-    await db.run(sql`DELETE FROM sqlite_sequence WHERE name = 'steam_apps'`);
+    const appids = steamApps.map((app) => app.appid);
+    await saveSteamAppids(appids);
 
-    for (let i = 0; i < steamApps.length; i += INSERT_CHUNK_SIZE) {
-      const end = Math.min(steamApps.length, i + INSERT_CHUNK_SIZE);
-      console.log(`Inserting ${i} - ${end}...`);
-      await db.insert(schema.steamApps).values(steamApps.slice(i, end));
-    }
-
-    await saveEventLog('fetch-apps-finished', { appsTotal: steamApps.length });
+    await saveEventLog('fetch-apps-finished', { appsTotal: appids.length });
 
     console.log('Done!');
   } catch (err) {

@@ -13,19 +13,12 @@ if (fs.existsSync(devVarsPath)) {
   }
 }
 
-const url = process.env.TURSO_CONNECTION_URL || 'file:local.db';
-const authToken = process.env.TURSO_AUTH_TOKEN;
-
-const isTurso = url.startsWith('libsql://') || url.startsWith('https://');
-const dialect = isTurso ? 'turso' : 'sqlite';
-
 export default defineConfig({
   schema: './src/lib/server/db/schema.ts',
   out: './drizzle',
-  dialect: dialect as 'turso' | 'sqlite',
+  dialect: 'sqlite',
   dbCredentials: {
-    url: url,
-    authToken: authToken,
+    url: 'local.db',
   },
   verbose: true,
   strict: true,

@@ -2,15 +2,6 @@ import { relations, sql } from 'drizzle-orm';
 import { sqliteTable, integer, text, primaryKey } from 'drizzle-orm/sqlite-core';
 import type { ContentDescriptor } from '$lib';
 
-export const steamApps = sqliteTable('steam_apps', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  appid: integer('appid').unique().notNull(),
-  name: text('name').notNull(),
-});
-
-export type SteamApp = typeof steamApps.$inferSelect;
-export type NewSteamApp = typeof steamApps.$inferInsert;
-
 export const games = sqliteTable(
   'games',
   {

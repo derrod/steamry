@@ -21,3 +21,13 @@ invocation_logs = true
 
 [observability.traces]
 enabled = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "steamry"
+database_id = "488b4b96-9e71-46ba-a2a6-adef40c44496"
+migrations_dir = "drizzle"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "ee3295e0a30b41f5862cdea8bbde5c25"

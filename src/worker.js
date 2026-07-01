@@ -10,7 +10,10 @@ export default {
   },
   async scheduled(event, env, ctx) {
     console.log(`Scheduled event triggered: ${event.cron}`);
-    initDb(env.TURSO_CONNECTION_URL, env.TURSO_AUTH_TOKEN);
+    initDb(env.DB);
+    if (env.KV) {
+      globalThis.KV = env.KV;
+    }
 
     globalThis.process = globalThis.process || { env: {} };
     if (env.STEAM_API_KEY) {
@@ -18,12 +21,6 @@ export default {
     }
     if (env.ORIGIN) {
       globalThis.process.env.ORIGIN = env.ORIGIN;
-    }
-    if (env.TURSO_CONNECTION_URL) {
-      globalThis.process.env.TURSO_CONNECTION_URL = env.TURSO_CONNECTION_URL;
-    }
-    if (env.TURSO_AUTH_TOKEN) {
-      globalThis.process.env.TURSO_AUTH_TOKEN = env.TURSO_AUTH_TOKEN;
     }
 
     ctx.waitUntil(

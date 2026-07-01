@@ -14,7 +14,7 @@ Copy the template file to create your local secrets file:
 cp .dev.vars.example .dev.vars
 ```
 
-Open `.dev.vars` and fill in your keys (`STEAM_API_KEY`, `SECRET_KEY`, `TURSO_CONNECTION_URL`, `TURSO_AUTH_TOKEN`).
+Open `.dev.vars` and fill in your keys (`STEAM_API_KEY`, `SECRET_KEY`, `REMOTE_CONTROL_KEY`).
 
 ### Run the Dev Server
 
@@ -28,17 +28,21 @@ The server will run on [http://localhost:8787](http://localhost:8787).
 
 ---
 
-## 2. Database Migrations (Drizzle + Turso)
+## 2. Database Migrations (Drizzle + Cloudflare D1)
 
 - **Generate Migrations** (when you update schemas in `src/lib/server/db/schema.ts`):
   ```bash
   npx drizzle-kit generate
   ```
-- **Apply Migrations** (pushed to your Turso database):
+- **Apply Migrations** (pushed to your Cloudflare D1 database):
   ```bash
-  npm run db:migrate
+  # Local development database:
+  npx wrangler d1 migrations apply steamry-db --local
+
+  # Production remote database:
+  npx wrangler d1 migrations apply steamry-db --remote
   ```
-- **Local Fallback**: If `TURSO_CONNECTION_URL` is omitted, commands automatically run against a local `file:local.db` file.
+- **Local Fallback**: Standalone CLI helper scripts run locally against a local SQLite `local.db` file.
 
 ---
 
@@ -52,8 +56,6 @@ Before your first deployment, configure your secrets on Cloudflare:
 npx wrangler secret put STEAM_API_KEY
 npx wrangler secret put SECRET_KEY
 npx wrangler secret put REMOTE_CONTROL_KEY
-npx wrangler secret put TURSO_CONNECTION_URL
-npx wrangler secret put TURSO_AUTH_TOKEN
 ```
 
 ### Build & Deploy

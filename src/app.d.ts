@@ -8,8 +8,8 @@ declare global {
     // interface PageState {}
     interface Platform {
       env: {
-        TURSO_CONNECTION_URL: string;
-        TURSO_AUTH_TOKEN?: string;
+        DB: D1Database;
+        KV: KVNamespace;
         STEAM_API_KEY?: string;
         SECRET_KEY?: string;
         ORIGIN?: string;
@@ -19,4 +19,4 @@ declare global {
   }
 }
 
-export {};
+export { };

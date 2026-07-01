@@ -2,7 +2,3 @@ STEAM_API_KEY="your_steam_api_key_here"
 SECRET_KEY="your_hmac_secret_key_here"
 ORIGIN="http://localhost:8787"
 REMOTE_CONTROL_KEY="your_remote_control_secret_here"
-
-# Turso Database Configuration (For local development, can also fall back to "file:local.db")
-TURSO_CONNECTION_URL="libsql://your-database-name.turso.io"
-TURSO_AUTH_TOKEN="your_turso_auth_token"
