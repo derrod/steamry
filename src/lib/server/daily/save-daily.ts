@@ -15,7 +15,16 @@ export default async function saveDaily(date: Date, rounds: schema.NewGameInfoOn
     }
   }
 
-  await db.insert(schema.games).values(games);
+  try {
+    const chunkSize = 4;
+    for (let i = 0; i < games.length; i += chunkSize) {
+      const chunk = games.slice(i, i + chunkSize);
+      await db.insert(schema.games).values(chunk);
+    }
+  } catch (err: any) {
+    console.error('DB INSERT FAILED:', err);
+    throw err;
+  }
 
   return daily;
 }

@@ -102,8 +102,11 @@ export default async function fillGameCache(): Promise<void> {
 
     if (gamesToInsert.length > 0) {
       console.log(`Inserting ${gamesToInsert.length} games into cache...`);
-      // Batch insert the games in 1 subrequest
-      await db.insert(schema.gameCache).values(gamesToInsert);
+      const chunkSize = 4;
+      for (let i = 0; i < gamesToInsert.length; i += chunkSize) {
+        const chunk = gamesToInsert.slice(i, i + chunkSize);
+        await db.insert(schema.gameCache).values(chunk);
+      }
     }
 
     await saveEventLog('fill-game-cache-finished', {
