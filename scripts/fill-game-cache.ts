@@ -1,8 +1,8 @@
 import { count, inArray } from 'drizzle-orm';
 import { db, initLocalDb } from '../src/lib/server/db';
 import * as schema from '../src/lib/server/db/schema';
-import fetchGameInfo from '../src/lib/server/steam/fetch-game-info';
 import { getSteamAppids } from '../src/lib/server/kv';
+import fetchGameInfo from '../src/lib/server/steam/fetch-game-info';
 
 initLocalDb();
 
