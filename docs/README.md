@@ -35,6 +35,7 @@ The server will run on [http://localhost:8787](http://localhost:8787).
   npx drizzle-kit generate
   ```
 - **Apply Migrations** (pushed to your Cloudflare D1 database):
+
   ```bash
   # Local development database:
   npx wrangler d1 migrations apply steamry-db --local
@@ -42,6 +43,7 @@ The server will run on [http://localhost:8787](http://localhost:8787).
   # Production remote database:
   npx wrangler d1 migrations apply steamry-db --remote
   ```
+
 - **Local Fallback**: Standalone CLI helper scripts run locally against a local SQLite `local.db` file.
 
 ---
