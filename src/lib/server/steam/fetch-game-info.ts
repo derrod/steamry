@@ -12,6 +12,7 @@ export default async function fetchGameInfo(appid: string): Promise<schema.NewGa
 
   const detailsUrl = new URL(APP_DETAILS_URL);
   detailsUrl.searchParams.set('appids', appid);
+  detailsUrl.searchParams.set('cc', 'us');
 
   let detailsResponse: Response | null = null;
   let detailsAttempts = 0;
