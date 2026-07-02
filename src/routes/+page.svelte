@@ -123,8 +123,11 @@
     </p>
     <p>
       Made by <Link href="https://bsky.app/profile/teatov.xyz">Teatov</Link>, updated and now hosted
-      by <Link href="https://bsky.app/profile/rodney.io">Rodney</Link>. Source code is available on
-      <Link href="https://github.com/derrod/steamry">GitHub</Link>. Thanks.
+      by <Link href="https://bsky.app/profile/rodney.io">Rodney</Link>.
+    </p>
+    <p>
+      Source code and bug reporting is available on
+      <Link href="https://github.com/derrod/steamry">GitHub</Link>.
     </p>
   </Card>
 </Container>
