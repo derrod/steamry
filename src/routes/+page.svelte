@@ -76,6 +76,15 @@
       </summary>
       <div class="border-t border-mute-foreground/20 bg-card-background-2/20 px-4 py-3">
         <div>
+          <h3 class="mb-2 text-sm font-bold text-primary-foreground">July 2, 2026</h3>
+          <ul class="list-inside list-disc space-y-1.5 pl-1 text-sm text-foreground/90">
+            <li>
+              Minor change to how price data is fetched so going forward it should always be in USD
+            </li>
+            <li>
+              Fixed dailies not generating on new infrastructure due to D1 database rate limits
+            </li>
+          </ul>
           <h3 class="mb-2 text-sm font-bold text-primary-foreground">July 1, 2026</h3>
           <ul class="list-inside list-disc space-y-1.5 pl-1 text-sm text-foreground/90">
             <li>
